@@ -16,7 +16,8 @@ if __name__=="__main__":
     
     cfg = Config()                                                          # configuration
     model = CSRNet().to(cfg.device)                                         # model
-    criterion = nn.MSELoss(size_average=False)                              # objective
+    # criterion = nn.MSELoss(size_average=False)                              # objective
+    criterion = nn.MSELoss(reduction='sum')
     optimizer = torch.optim.Adam(model.parameters(),lr=cfg.lr)              # optimizer
     train_dataloader = create_train_dataloader(cfg.dataset_root, use_flip=True, batch_size=cfg.batch_size)
     test_dataloader  = create_test_dataloader(cfg.dataset_root)             # dataloader

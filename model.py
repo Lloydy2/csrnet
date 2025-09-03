@@ -29,7 +29,9 @@ class CSRNet(nn.Module):
         x = self.frontend(x)
         x = self.backend(x)
         x = self.output_layer(x)
-        x = nn.functional.interpolate(x, scale_factor=8)
+        # x = nn.functional.interpolate(x, scale_factor=8)
+        x = nn.functional.interpolate(x, size=(512, 512), mode='bilinear', align_corners=False)
+
         return x
 
     def _initialize_weights(self):

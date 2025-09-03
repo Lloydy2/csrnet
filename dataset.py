@@ -9,7 +9,8 @@ import random
 from PIL import Image
 from torchvision.transforms import Compose, ToTensor, Normalize
 import torchvision.transforms.functional as F
-
+from torchvision.transforms import Resize
+from torchvision import transforms
 
 class CrowdDataset(torch.utils.data.Dataset):
     '''
@@ -59,35 +60,63 @@ class CrowdDataset(torch.utils.data.Dataset):
         dmap = Image.fromarray(dmap)
         return img, dmap
 
-def create_train_dataloader(root, use_flip, batch_size):
+
+class DensityResize(object):
+    def __init__(self, shape):
+        self.shape = shape
+    def __call__(self, dmap):
+        dmap = np.array(dmap)
+        orig_sum = dmap.sum()
+        dmap = cv2.resize(dmap, self.shape, interpolation=cv2.INTER_LINEAR)
+        dmap = dmap * (orig_sum / (dmap.sum() + 1e-8))  # preserve total count
+        return Image.fromarray(dmap.astype(np.float32))
+
+
+def get_transform():
+    return transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+    ])
+
+
+def create_train_dataloader(root, use_flip, batch_size, resize_shape=(512, 512)):
     '''
     Create train dataloader.
     root: the dataset root.
     use_flip: True or false.
     batch size: the batch size.
+    resize_shape: tuple (height, width) to resize images and density maps.
     '''
     main_trans_list = []
     if use_flip:
         main_trans_list.append(RandomHorizontalFlip())
     main_trans_list.append(PairedCrop())
     main_trans = Compose(main_trans_list)
-    img_trans = Compose([ToTensor(), Normalize(mean=[0.5,0.5,0.5],std=[0.225,0.225,0.225])])
-    dmap_trans = ToTensor()
+    img_trans = Compose([Resize(resize_shape), ToTensor(), Normalize(mean=[0.5,0.5,0.5],std=[0.225,0.225,0.225])])
+    # dmap_trans = Compose([Resize(resize_shape), ToTensor()])
+    # dmap_trans = Compose([Resize((512,512)), ToTensor()])
+    dmap_trans = Compose([DensityResize((512,512)), ToTensor()])
+
     dataset = CrowdDataset(root=root, phase='train', main_transform=main_trans, 
                     img_transform=img_trans,dmap_transform=dmap_trans)
     dataloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=True)
     return dataloader
 
-def create_test_dataloader(root):
+def create_test_dataloader(root, resize_shape=(512, 512)):
     '''
-    Create train dataloader.
+    Create test dataloader.
     root: the dataset root.
+    resize_shape: tuple (height, width) to resize images and density maps.
     '''
     main_trans_list = []
     main_trans_list.append(PairedCrop())
     main_trans = Compose(main_trans_list)
-    img_trans = Compose([ToTensor(), Normalize(mean=[0.5,0.5,0.5],std=[0.225,0.225,0.225])])
-    dmap_trans = ToTensor()
+    img_trans = Compose([Resize(resize_shape), ToTensor(), Normalize(mean=[0.5,0.5,0.5],std=[0.225,0.225,0.225])])
+    # dmap_trans = Compose([Resize(resize_shape), ToTensor()])
+    # dmap_trans = Compose([Resize((512,512)), ToTensor()])
+    dmap_trans = Compose([DensityResize((512,512)), ToTensor()])
+
     dataset = CrowdDataset(root=root, phase='test', main_transform=main_trans, 
                     img_transform=img_trans,dmap_transform=dmap_trans)
     dataloader = torch.utils.data.DataLoader(dataset,batch_size=1,shuffle=False)
@@ -144,10 +173,22 @@ class PairedCrop(object):
 
 
 # testing code
-# if __name__ == "__main__":
-#     root = './data/part_B_final'
-#     dataloader = create_train_dataloader(root, True, 2)
-#     for i, data in enumerate(dataloader):
-#         image = data['image']
-#         densitymap = data['densitymap']
-#         print(image.shape,densitymap.shape)
+if __name__ == "__main__":
+    root = './data'  # Change this if your data is in a different location
+    resize_shape = (512, 512)  # Set your desired fixed size
+    print('Testing train dataloader:')
+    train_loader = create_train_dataloader(root, use_flip=True, batch_size=2, resize_shape=resize_shape)
+    for i, data in enumerate(train_loader):
+        image = data['image']
+        densitymap = data['densitymap']
+        print(f'Train batch {i}: image shape {image.shape}, densitymap shape {densitymap.shape}')
+        if i >= 1:
+            break
+    print('Testing test dataloader:')
+    test_loader = create_test_dataloader(root, resize_shape=resize_shape)
+    for i, data in enumerate(test_loader):
+        image = data['image']
+        densitymap = data['densitymap']
+        print(f'Test batch {i}: image shape {image.shape}, densitymap shape {densitymap.shape}')
+        if i >= 1:
+            break
