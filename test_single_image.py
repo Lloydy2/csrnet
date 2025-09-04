@@ -9,7 +9,7 @@ import os
 # Config
 BEST_EPOCH = 93
 CHECKPOINT_PATH = f'./checkpoints/{BEST_EPOCH}.pth'
-IMAGE_PATH = './data/chat.png'  # can be new/unseen image
+IMAGE_PATH = './data/train_data/images/20250829_202417.jpg'  # can be new/unseen image
 # IMAGE_PATH = './data/train_data/images/20250829_202417.jpg'  # can be new/unseen image
 
 # Device
