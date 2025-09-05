@@ -1,0 +1,27 @@
+PS C:\Users\Gerald Lloyd\Desktop\THESIS\TEST_ANNOTATIONS\GITHUB_MCNN> python train.py        
+Setting up a new session...
+C:\Users\Gerald Lloyd\AppData\Local\Programs\Python\Python311\Lib\site-packages\torch\nn\_reduction.py:51: UserWarning: size_average and reduce args will be deprecated, please use reduction='sum' instead.
+  warnings.warn(warning.format(ret))
+C:\Users\Gerald Lloyd\AppData\Local\Programs\Python\Python311\Lib\site-packages\torch\nn\modules\loss.py:616: UserWarning: Using a target size (torch.Size([1, 1, 150, 200])) that is different to the input size (torch.Size([1, 1, 300, 400])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return F.mse_loss(input, target, reduction=self.reduction)
+Traceback (most recent call last):
+  File "C:\Users\Gerald Lloyd\Desktop\THESIS\TEST_ANNOTATIONS\GITHUB_MCNN\train.py", line 48, in <module>
+    loss=criterion(et_dmap,gt_dmap)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gerald Lloyd\AppData\Local\Programs\Python\Python311\Lib\site-packages\torch\nn\modules\module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gerald Lloyd\AppData\Local\Programs\Python\Python311\Lib\site-packages\torch\nn\modules\module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gerald Lloyd\AppData\Local\Programs\Python\Python311\Lib\site-packages\torch\nn\modules\loss.py", line 616, in forward
+    return F.mse_loss(input, target, reduction=self.reduction)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gerald Lloyd\AppData\Local\Programs\Python\Python311\Lib\site-packages\torch\nn\functional.py", line 3868, in mse_loss
+    expanded_input, expanded_target = torch.broadcast_tensors(input, target)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gerald Lloyd\AppData\Local\Programs\Python\Python311\Lib\site-packages\torch\functional.py", line 77, in broadcast_tensors
+    return _VF.broadcast_tensors(tensors)  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: The size of tensor a (400) must match the size of tensor b (200) at non-singleton dimension 3
+PS C:\Users\Gerald Lloyd\Desktop\THESIS\TEST_ANNOTATIONS\GITHUB_MCNN> 
